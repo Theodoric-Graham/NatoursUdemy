@@ -3,6 +3,10 @@ const express = require('express');
 
 const app = express();
 
+//Middleware is a function that can modify incoming request data
+//data from the body is added to the request object
+app.use(express.json());
+
 // app.get('/', (req, res) => {
 //   res
 //     .status(200)
@@ -25,6 +29,35 @@ app.get('/api/v1/tours', (req, res) => {
       tours,
     },
   });
+});
+
+// the req object is what holds all the data about the request that was done,
+// and if that request contains some data that was sent, then that data should be
+// on the request
+// we need middleware
+app.post('/api/v1/tours', (req, res) => {
+  //body is a property that will be available because of the middleware
+  // console.log(req.body);
+
+  const newId = tours[tours.length - 1].id + 1;
+  const newTour = Object.assign({ id: newId }, req.body);
+
+  tours.push(newTour);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      res.status(201).json({
+        status: 'success',
+        data: {
+          tour: newTour,
+        },
+      });
+    }
+  );
+
+  //We always need to send back something in order to finish the request response cycle
 });
 
 const port = 3000;
