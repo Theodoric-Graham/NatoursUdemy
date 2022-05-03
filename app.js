@@ -7,21 +7,15 @@ const app = express();
 //data from the body is added to the request object
 app.use(express.json());
 
-// app.get('/', (req, res) => {
-//   res
-//     .status(200)
-//     .json({ message: 'Hello from the server side!', app: 'Natours' });
-// });
-
-// app.post('/', (req, res) => {
-//   res.send('You can post to this endpoint...');
-// });
-
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) => {
+// the req object is what holds all the data about the request that was done,
+// and if that request contains some data that was sent, then that data should be
+// on the request
+// we need middleware
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
@@ -29,9 +23,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours,
     },
   });
-});
-// creating a variable named id
-app.get('/api/v1/tours/:id/', (req, res) => {
+};
+
+const getTour = (req, res) => {
   console.log(req.params);
   // converting from string to number
   const id = +req.params.id;
@@ -52,13 +46,9 @@ app.get('/api/v1/tours/:id/', (req, res) => {
       tour,
     },
   });
-});
+};
 
-// the req object is what holds all the data about the request that was done,
-// and if that request contains some data that was sent, then that data should be
-// on the request
-// we need middleware
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   //body is a property that will be available because of the middleware
   // console.log(req.body);
 
@@ -82,9 +72,9 @@ app.post('/api/v1/tours', (req, res) => {
   );
 
   //We always need to send back something in order to finish the request response cycle
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   if (+req.params.id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -97,9 +87,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       tour: '<Updated tour here...>',
     },
   });
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   if (+req.params.id > tours.length) {
     return res.status(404).json({
       status: 'fail',
@@ -111,7 +101,22 @@ app.delete('/api/v1/tours/:id', (req, res) => {
     status: 'success',
     data: null,
   });
-});
+};
+
+// app.get('/api/v1/tours', getAllTours);
+// creating a variable named id
+// app.post('/api/v1/tours', createTour);
+// app.get('/api/v1/tours/:id/', getTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+
+app
+  .route('/api/v1/tours/:id/')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
