@@ -30,6 +30,29 @@ app.get('/api/v1/tours', (req, res) => {
     },
   });
 });
+// creating a variable named id
+app.get('/api/v1/tours/:id/', (req, res) => {
+  console.log(req.params);
+  // converting from string to number
+  const id = +req.params.id;
+  // returns the first element that has our specified ID,
+  const tour = tours.find((el) => el.id === id);
+
+  // if (id > tours.length) {
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
+});
 
 // the req object is what holds all the data about the request that was done,
 // and if that request contains some data that was sent, then that data should be
@@ -48,6 +71,7 @@ app.post('/api/v1/tours', (req, res) => {
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
+      // 201 stands for created
       res.status(201).json({
         status: 'success',
         data: {
