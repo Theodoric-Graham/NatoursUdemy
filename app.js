@@ -119,6 +119,46 @@ const deleteTour = (req, res) => {
   });
 };
 
+const getAllUsers = (req, res) => {
+  //code 500 means internal server error
+  res.status(500).json({
+    status: 'error',
+    message: 'The route is not yet defined!',
+  });
+};
+
+const getUser = (req, res) => {
+  //code 500 means internal server error
+  res.status(500).json({
+    status: 'error',
+    message: 'The route is not yet defined!',
+  });
+};
+
+const createUser = (req, res) => {
+  //code 500 means internal server error
+  res.status(500).json({
+    status: 'error',
+    message: 'The route is not yet defined!',
+  });
+};
+
+const updateUser = (req, res) => {
+  //code 500 means internal server error
+  res.status(500).json({
+    status: 'error',
+    message: 'The route is not yet defined!',
+  });
+};
+
+const deleteUser = (req, res) => {
+  //code 500 means internal server error
+  res.status(500).json({
+    status: 'error',
+    message: 'The route is not yet defined!',
+  });
+};
+
 // app.get('/api/v1/tours', getAllTours);
 // creating a variable named id
 // app.post('/api/v1/tours', createTour);
@@ -134,6 +174,14 @@ app
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
+
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
 
 // 4) Start server
 const port = 3000;
