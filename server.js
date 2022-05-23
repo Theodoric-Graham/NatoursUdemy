@@ -1,8 +1,9 @@
 const dotenv = require('dotenv');
+const app = require('./app');
+
 dotenv.config({ path: './config.env' });
 
 //we couldnt read the process variable inside app.js because it wasnt configured, so config before app
-const app = require('./app');
 
 // environment variables are global variables that are used to define the
 // environment that the node app is running
@@ -10,6 +11,7 @@ const app = require('./app');
 // console.log(app.get('env'));
 
 //they come from the process core module, set when started
+// no need to require process module
 // console.log(process.env);
 
 //  Start server
