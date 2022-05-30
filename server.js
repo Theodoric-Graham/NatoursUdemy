@@ -1,7 +1,23 @@
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const app = require('./app');
 
 dotenv.config({ path: './config.env' });
+
+const DB = process.env.DATABASE.replace(
+  '<PASSWORD>',
+  process.env.DATABASE_PASSWORD
+);
+//need to pass in database connection string first arg, second arg is an object with options
+//this code is used for deprication warnings
+//connect method is going to return a promise
+mongoose
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
+  .then(() => console.log('DB connection succesful'));
 
 //we couldnt read the process variable inside app.js because it wasnt configured, so config before app
 
