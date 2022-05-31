@@ -8,7 +8,7 @@ const app = express();
 // can run in different environments, dev and prod, depending on the env, we may do different things
 // express sets the env to development by default
 // 1) Middlewares
-console.log(process.env.NODE_ENV);
+// console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }

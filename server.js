@@ -16,11 +16,29 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
+    useUnifiedTopology: true,
   })
   .then(() => console.log('DB connection succesful'));
 
+//basic schema description
+const tourSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'A tour must have a name'],
+    unique: true,
+  },
+  rating: {
+    type: Number,
+    default: 4.5,
+  },
+  price: {
+    type: Number,
+    required: [true, 'A tour must have a price'],
+  },
+});
+//always use uppercase on model names and variables
+const Tour = mongoose.model('Tour', tourSchema);
 //we couldnt read the process variable inside app.js because it wasnt configured, so config before app
-
 // environment variables are global variables that are used to define the
 // environment that the node app is running
 // env is set by express
