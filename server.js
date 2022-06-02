@@ -36,8 +36,27 @@ const tourSchema = new mongoose.Schema({
     required: [true, 'A tour must have a price'],
   },
 });
-//always use uppercase on model names and variables
+//always use uppercase on model names and variables, name, then schema
 const Tour = mongoose.model('Tour', tourSchema);
+
+//new document we created out of a tour model
+//an instance of the tour model
+const testTour = new Tour({
+  name: 'The Park Camper',
+  price: 997,
+});
+
+//this will save it to the tours collection in the db
+//save will return a promise that we can consume
+//doc is the resolved value
+testTour
+  .save()
+  .then((doc) => {
+    console.log(doc);
+  })
+  .catch((err) => {
+    console.log('ERROR ❌:', err);
+  });
 //we couldnt read the process variable inside app.js because it wasnt configured, so config before app
 // environment variables are global variables that are used to define the
 // environment that the node app is running
