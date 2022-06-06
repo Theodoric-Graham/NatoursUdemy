@@ -1,4 +1,4 @@
-const Tours = require('./../models/tourModel');
+const Tour = require('./../models/tourModel');
 
 //Parsing the data
 // const tours = JSON.parse(
@@ -17,16 +17,16 @@ const Tours = require('./../models/tourModel');
 //   next();
 // };
 
-exports.checkBody = (req, res, next) => {
-  console.log(req.body);
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name or price',
-    });
-  }
-  next();
-};
+// exports.checkBody = (req, res, next) => {
+//   console.log(req.body);
+//   if (!req.body.name || !req.body.price) {
+//     return res.status(400).json({
+//       status: 'fail',
+//       message: 'Missing name or price',
+//     });
+//   }
+//   next();
+// };
 
 // Controllers Handlers
 exports.getAllTours = (req, res) => {
@@ -58,36 +58,50 @@ exports.getTour = (req, res) => {
   // });
 };
 
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-    // data: {
-    //   tour: newTour,
-    // },
-    //body is a property that will be available because of the middleware
-    // console.log(req.body);
+exports.createTour = async (req, res) => {
+  try {
+    // const newTours = new Tour({})
+    // newTours.save()
 
-    // const newId = tours[tours.length - 1].id + 1;
-    // const newTour = Object.assign({ id: newId }, req.body);
+    //Tour.create returns a promise, use async await to handle it
+    const newTour = await Tour.create(req.body);
 
-    // tours.push(newTour);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
 
-    // fs.writeFile(
-    //   `${__dirname}/dev-data/data/tours-simple.json`,
-    //   JSON.stringify(tours),
-    //   (err) => {
-    //     // 201 stands for created
-    //     res.status(201).json({
-    //       status: 'success',
-    //       data: {
-    //         tour: newTour,
-    //       },
-    //     });
-    //   }
-    // );
+      //body is a property that will be available because of the middleware
+      // console.log(req.body);
 
-    //We always need to send back something in order to finish the request response cycle
-  });
+      // const newId = tours[tours.length - 1].id + 1;
+      // const newTour = Object.assign({ id: newId }, req.body);
+
+      // tours.push(newTour);
+
+      // fs.writeFile(
+      //   `${__dirname}/dev-data/data/tours-simple.json`,
+      //   JSON.stringify(tours),
+      //   (err) => {
+      //     // 201 stands for created
+      //     res.status(201).json({
+      //       status: 'success',
+      //       data: {
+      //         tour: newTour,
+      //       },
+      //     });
+      //   }
+      // );
+
+      //We always need to send back something in order to finish the request response cycle
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: 'Invalid data sent!',
+    });
+  }
 };
 
 exports.updateTour = (req, res) => {
