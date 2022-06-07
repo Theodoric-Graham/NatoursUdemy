@@ -3,6 +3,7 @@ const morgan = require('morgan');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+
 const app = express();
 
 // can run in different environments, dev and prod, depending on the env, we may do different things

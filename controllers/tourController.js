@@ -1,4 +1,4 @@
-const Tour = require('./../models/tourModel');
+const Tour = require('../models/tourModel');
 
 //Parsing the data
 // const tours = JSON.parse(
@@ -29,33 +29,50 @@ const Tour = require('./../models/tourModel');
 // };
 
 // Controllers Handlers
-exports.getAllTours = (req, res) => {
-  console.log(req.requestTime);
-  res.status(200).json({
-    status: 'success',
-    requestedAt: req.requestTime,
-    // results: tours.length,
-    // data: {
-    //   tours,
-    // },
-  });
+exports.getAllTours = async (req, res) => {
+  try {
+    //when nothing is passed into the find method, it returns all docs in that collection
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
-exports.getTour = (req, res) => {
-  console.log(req.params);
+exports.getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // Tour.findOne({ _id: req.params.id })
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+
+  // console.log(req.params);
   // converting from string to number
-  const id = +req.params.id;
+  // const id = +req.params.id;
   // returns the first element that has our specified ID,
   // const tour = tours.find((el) => el.id === id);
-
   // if (id > tours.length) {
-
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     tour,
-  //   },
-  // });
 };
 
 exports.createTour = async (req, res) => {
