@@ -31,19 +31,37 @@ const Tour = require('../models/tourModel');
 // Controllers Handlers
 exports.getAllTours = async (req, res) => {
   try {
+    console.log(req.query);
+
     //Building Query
+    // 1) Filtering
     //destructuring will take the fields out of the object, then we create a new object
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
     //should give us a nicely formated object with the data from the query string
     //we do this filtering in the route where we get all the tours
-    console.log(req.query, queryObj);
+    // console.log(req.query, queryObj);
     //when nothing is passed into the find method, it returns all docs in that collection
     // one way of writing a query
     //returns a query
     //as soon as we use await the query will execute and come back with the documents that match our query
-    const query = Tour.find(queryObj);
+
+    //2) Advanced Filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    console.log(JSON.parse(queryStr));
+
+    // gte / greater than or equal to
+    // { difficulty: 'easy', duration: { $gte: 5}}
+    // we need to add the mongodb operator $
+    // { difficulty: 'easy', duration: { gte: '5' } }
+    // gte, gt, lte, lt
+
+    const query = Tour.find(JSON.parse(queryStr));
+
+    //EXECUTE QUERY
+    const tours = await query;
 
     //other way of writing a query using mongoose methods
     // const query = Tour.find()
@@ -51,9 +69,6 @@ exports.getAllTours = async (req, res) => {
     //   .equals(5)
     //   .where('difficulty')
     //   .equals('easy');
-
-    //EXECUTE QUERY
-    const tours = await query;
 
     //SEND RESPONSE
     res.status(200).json({
