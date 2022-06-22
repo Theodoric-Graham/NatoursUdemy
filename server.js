@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const app = require('./app');
 
+//we couldnt read the process variable inside app.js because it wasnt configured, so config before app
 dotenv.config({ path: './config.env' });
+const app = require('./app');
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -38,7 +39,6 @@ mongoose
 //   .catch((err) => {
 //     console.log('ERROR ❌:', err);
 //   });
-//we couldnt read the process variable inside app.js because it wasnt configured, so config before app
 // environment variables are global variables that are used to define the
 // environment that the node app is running
 // env is set by express

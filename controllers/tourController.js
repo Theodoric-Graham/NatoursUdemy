@@ -31,9 +31,31 @@ const Tour = require('../models/tourModel');
 // Controllers Handlers
 exports.getAllTours = async (req, res) => {
   try {
+    //Building Query
+    //destructuring will take the fields out of the object, then we create a new object
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+    //should give us a nicely formated object with the data from the query string
+    //we do this filtering in the route where we get all the tours
+    console.log(req.query, queryObj);
     //when nothing is passed into the find method, it returns all docs in that collection
-    const tours = await Tour.find();
+    // one way of writing a query
+    //returns a query
+    //as soon as we use await the query will execute and come back with the documents that match our query
+    const query = Tour.find(queryObj);
 
+    //other way of writing a query using mongoose methods
+    // const query = Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
+
+    //EXECUTE QUERY
+    const tours = await query;
+
+    //SEND RESPONSE
     res.status(200).json({
       status: 'success',
       results: tours.length,

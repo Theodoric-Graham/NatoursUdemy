@@ -11,6 +11,7 @@ const app = express();
 // 1) Middlewares
 // console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === 'development') {
+  //responsible for console log
   app.use(morgan('dev'));
 }
 //Middleware is a function that can modify incoming request data
