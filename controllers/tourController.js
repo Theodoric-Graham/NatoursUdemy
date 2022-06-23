@@ -34,23 +34,23 @@ exports.getAllTours = async (req, res) => {
     console.log(req.query);
 
     //Building Query
-    // 1) Filtering
+    // 1A) Filtering
+    //we do this filtering in the route where we get all the tours
     //destructuring will take the fields out of the object, then we create a new object
     const queryObj = { ...req.query };
+    //excluded so it could not pollute our filtering, ex: page=2, would not be able to return any documents
+    //we need to exlude these special field names from our query string, before the filtering
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    //should give us a nicely formated object with the data from the query string
-    //we do this filtering in the route where we get all the tours
     // console.log(req.query, queryObj);
-    //when nothing is passed into the find method, it returns all docs in that collection
-    // one way of writing a query
-    //returns a query
-    //as soon as we use await the query will execute and come back with the documents that match our query
 
-    //2) Advanced Filtering
+    //1B) Advanced Filtering
+    //turns into string
+    //should give us a nicely formated object with the data from the query string
     let queryStr = JSON.stringify(queryObj);
+    //regex that selects these strings and replaces them
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    console.log(JSON.parse(queryStr));
+    // console.log(JSON.parse(queryStr));
 
     // gte / greater than or equal to
     // { difficulty: 'easy', duration: { $gte: 5}}
@@ -58,9 +58,29 @@ exports.getAllTours = async (req, res) => {
     // { difficulty: 'easy', duration: { gte: '5' } }
     // gte, gt, lte, lt
 
-    const query = Tour.find(JSON.parse(queryStr));
+    //when nothing is passed into the find method, it returns all docs in that collection
+    // one way of writing a query, returns a query
+    // pass in query object to filter based on those parameters
+    let query = Tour.find(JSON.parse(queryStr));
+
+    //2) Sorting
+    //if sort property exists in the query object
+    if (req.query.sort) {
+      // console.log(req.query.sort);
+      // console.log(req.query.sort.split(','));
+      //splits a string into substrings using the specified seperator and return them as an array
+      //join adds all the elements of an array seperated by the specified separator string
+      const sortBy = req.query.sort.split(',').join(' ');
+      // console.log(sortBy);
+      query = query.sort(sortBy);
+      //sort('price ratingsAverage)
+    } else {
+      //sort by the createdAt field in descending order
+      query = query.sort('-createdAt');
+    }
 
     //EXECUTE QUERY
+    //as soon as we use await the query will execute and come back with the documents that match our query
     const tours = await query;
 
     //other way of writing a query using mongoose methods
