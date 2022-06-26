@@ -79,6 +79,20 @@ exports.getAllTours = async (req, res) => {
       query = query.sort('-createdAt');
     }
 
+    // 3) Field Limiting
+    if (req.query.fields) {
+      // console.log(req.query.fields.split(','));
+      // { fields: 'name,duration,difficulty,price' }
+      // [ 'name', 'duration', 'difficulty', 'price' ]
+      const fields = req.query.fields.split(',').join(' ');
+      //the operation of selecting only certain field names is called projecting'
+      //select expects a string like 'name duration price'
+      query = query.select(fields);
+    } else {
+      // - excludes
+      query = query.select('-__v');
+    }
+
     //EXECUTE QUERY
     //as soon as we use await the query will execute and come back with the documents that match our query
     const tours = await query;
