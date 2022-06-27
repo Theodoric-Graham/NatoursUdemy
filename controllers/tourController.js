@@ -76,7 +76,7 @@ exports.getAllTours = async (req, res) => {
       //sort('price ratingsAverage)
     } else {
       //sort by the createdAt field in descending order
-      query = query.sort('-createdAt');
+      query = query.sort('-_id');
     }
 
     // 3) Field Limiting
@@ -92,10 +92,29 @@ exports.getAllTours = async (req, res) => {
       // - excludes
       query = query.select('-__v');
     }
+    // 4) Pagination
+    //converting from string to number, and setting 1 as the default value
+    const page = +req.query.page || 1;
+    // setting page limit to 100
+    const limit = +req.query.limit || 100;
+    // ex: page = 3, limit = 10, (3-1) * 10 = 2 * 10 = skip = 20
+    const skip = (page - 1) * limit;
+    console.log(page);
+    //page=2&limit=10, 1-10, page 1, 11=2-, page 2, 21-30, page 3
+    //limit is exactly the same as the limit we defined in the query string
+    //skip is the amount of results that should be skipped before querying any data
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      // going to return the number of documents, returns a promise
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
+    }
 
     //EXECUTE QUERY
     //as soon as we use await the query will execute and come back with the documents that match our query
     const tours = await query;
+    //query.sort().select().skip().limit()
 
     //other way of writing a query using mongoose methods
     // const query = Tour.find()
