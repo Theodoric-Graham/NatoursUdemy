@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 //prefilling the query string for the user
 exports.aliasTopTours = (req, res, next) => {
@@ -7,6 +8,7 @@ exports.aliasTopTours = (req, res, next) => {
   req.query.fields = 'name,price,ratingsAverage,summary,difficuly';
   next();
 };
+
 //Parsing the data
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
@@ -44,19 +46,19 @@ exports.getAllTours = async (req, res) => {
     // 1A) Filtering
     //we do this filtering in the route where we get all the tours
     //destructuring will take the fields out of the object, then we create a new object
-    const queryObj = { ...req.query };
+    // const queryObj = { ...req.query };
     //excluded so it could not pollute our filtering, ex: page=2, would not be able to return any documents
     //we need to exlude these special field names from our query string, before the filtering
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    // const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
     // console.log(req.query, queryObj);
 
     //1B) Advanced Filtering
     //turns into string
     //should give us a nicely formated object with the data from the query string
-    let queryStr = JSON.stringify(queryObj);
+    // let queryStr = JSON.stringify(queryObj);
     //regex that selects these strings and replaces them
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
     // console.log(JSON.parse(queryStr));
 
     // gte / greater than or equal to
@@ -68,59 +70,66 @@ exports.getAllTours = async (req, res) => {
     //when nothing is passed into the find method, it returns all docs in that collection
     // one way of writing a query, returns a query
     // pass in query object to filter based on those parameters
-    let query = Tour.find(JSON.parse(queryStr));
+    // let query = Tour.find(JSON.parse(queryStr));
 
     //2) Sorting
     //if sort property exists in the query object
-    if (req.query.sort) {
-      // console.log(req.query.sort);
-      // console.log(req.query.sort.split(','));
-      //splits a string into substrings using the specified seperator and return them as an array
-      //join adds all the elements of an array seperated by the specified separator string
-      const sortBy = req.query.sort.split(',').join(' ');
-      // console.log(sortBy);
-      query = query.sort(sortBy);
-      //sort('price ratingsAverage)
-    } else {
-      //sort by the createdAt field in descending order
-      query = query.sort('-_id');
-    }
+    // if (req.query.sort) {
+    // console.log(req.query.sort);
+    // console.log(req.query.sort.split(','));
+    //splits a string into substrings using the specified seperator and return them as an array
+    //join adds all the elements of an array seperated by the specified separator string
+    // const sortBy = req.query.sort.split(',').join(' ');
+    // console.log(sortBy);
+    // query = query.sort(sortBy);
+    //sort('price ratingsAverage)
+    // } else {
+    //sort by the createdAt field in descending order
+    //   query = query.sort('-_id');
+    // }
 
     // 3) Field Limiting
-    if (req.query.fields) {
-      // console.log(req.query.fields.split(','));
-      // { fields: 'name,duration,difficulty,price' }
-      // [ 'name', 'duration', 'difficulty', 'price' ]
-      const fields = req.query.fields.split(',').join(' ');
-      //the operation of selecting only certain field names is called projecting'
-      //select expects a string like 'name duration price'
-      query = query.select(fields);
-    } else {
-      // - excludes
-      query = query.select('-__v');
-    }
+    // if (req.query.fields) {
+    // console.log(req.query.fields.split(','));
+    // { fields: 'name,duration,difficulty,price' }
+    // [ 'name', 'duration', 'difficulty', 'price' ]
+    // const fields = req.query.fields.split(',').join(' ');
+    //the operation of selecting only certain field names is called projecting'
+    //select expects a string like 'name duration price'
+    // query = query.select(fields);
+    // } else {
+    // - excludes
+    // query = query.select('-__v');
+    // }
     // 4) Pagination
     //converting from string to number, and setting 1 as the default value
-    const page = +req.query.page || 1;
+    // const page = +req.query.page || 1;
     // setting page limit to 100
-    const limit = +req.query.limit || 100;
+    // const limit = +req.query.limit || 100;
     // ex: page = 3, limit = 10, (3-1) * 10 = 2 * 10 = skip = 20
-    const skip = (page - 1) * limit;
-    console.log(page);
+    // const skip = (page - 1) * limit;
+    // console.log(page);
     //page=2&limit=10, 1-10, page 1, 11=2-, page 2, 21-30, page 3
     //limit is exactly the same as the limit we defined in the query string
     //skip is the amount of results that should be skipped before querying any data
-    query = query.skip(skip).limit(limit);
+    // query = query.skip(skip).limit(limit);
 
-    if (req.query.page) {
-      // going to return the number of documents, returns a promise
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist');
-    }
+    // if (req.query.page) {
+    // going to return the number of documents, returns a promise
+    // const numTours = await Tour.countDocuments();
+    // if (skip >= numTours) throw new Error('This page does not exist');
+    // }
 
     //EXECUTE QUERY
+    //creating an instance of the class that will then get stored to features, will have access to all methods
+    // we pass in a query object, and query string that comes from express
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
     //as soon as we use await the query will execute and come back with the documents that match our query
-    const tours = await query;
+    const tours = await features.query;
     //query.sort().select().skip().limit()
 
     //other way of writing a query using mongoose methods
