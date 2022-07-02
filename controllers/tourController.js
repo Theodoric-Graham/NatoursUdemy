@@ -266,3 +266,51 @@ exports.deleteTour = async (req, res) => {
     });
   }
 };
+
+exports.getTourStats = async (req, res) => {
+  try {
+    // aggregation pipeline is a mongodb feat, but mongoose allows us access so we can use it in the mongoose driver
+    // similar to a regular query, pass in an array of stages, going to return an aggregate obj, needs to be awaited
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        //need to specify _id first
+        $group: {
+          //we do this so we can have everything together so we can calculate the stats for all the tours together
+          _id: { $toUpper: '$difficulty' },
+          // _id: '$ratingsAverage',
+          numTours: { $sum: 1 },
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: {
+            $avg: '$ratingsAverage',
+          },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        // 1 for ascending
+        $sort: { avgPrice: 1 },
+      },
+      //can use match again in the pipeline
+      // {
+      //   $match: { _id: { $ne: 'EASY' } },
+      // },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        // tour: tour,
+        stats,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
