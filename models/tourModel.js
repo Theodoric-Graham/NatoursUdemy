@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 //virtual properties are fields we define on our schema but that will not be persistent, they will not be saved to the database
 //we cannot use virtial properties in a query, because they are technically not part of the database
@@ -11,6 +12,7 @@ const tourSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration'],
@@ -75,6 +77,39 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+
+//MONGOOSE MIDDLEWARE
+
+//for example each time a document is saved to the database,
+//we can run a function between when the saved command is issued and the actual
+//saving of the document , or after the saving(pre/ post hooks)
+//document middleware, can act on the currently processed document
+//we define middleware on the schema
+//pre will run before the event, in this case save
+
+//DOCUMENT MIDDLEWARE: runs before .save() and .create() but not .insertMany()
+//has access to next just like express
+//pre save middleware has access to next
+//pre save hook
+tourSchema.pre('save', function (next) {
+  //in a save middleware the this keyword will point to the currently processed document
+  // console.log(this);
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// tourSchema.pre('save', function (next) {
+//   console.log('Will save document...');
+//   next();
+// });
+
+//executed once all the pre middleware functions have completed
+//no longer has this, but instead has the finished document in doc
+// tourSchema.post('save', function (doc, next) {
+//   console.log(doc);
+//   next();
+// });
+
 //always use uppercase on model names and variables, name, then schema
 const Tour = mongoose.model('Tour', tourSchema);
 
