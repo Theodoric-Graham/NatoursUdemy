@@ -60,6 +60,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   // first object is the schema definition, and the second is for the options
   {
@@ -109,6 +113,26 @@ tourSchema.pre('save', function (next) {
 //   console.log(doc);
 //   next();
 // });
+
+//QUERY MIDDLEWARE
+//the find hook will make it query middleware and not document
+// tourSchema.pre('find', function (next) {
+//using regex we can execute the middleware with all the commands that starts with the word find
+//find, findOne, findOneAndDelete, FindOneAndUpdate, FindOneAndRemove
+tourSchema.pre(/^find/, function (next) {
+  //this is now a query object, so we can chain all the methods we have for queries
+  this.find({ secretTour: { $ne: true } });
+
+  this.start = Date.now();
+  next();
+});
+
+//in the post find middleware we gain access to all the documents that were returned from the query
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+  console.log(docs);
+  next();
+});
 
 //always use uppercase on model names and variables, name, then schema
 const Tour = mongoose.model('Tour', tourSchema);
