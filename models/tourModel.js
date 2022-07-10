@@ -130,7 +130,14 @@ tourSchema.pre(/^find/, function (next) {
 //in the post find middleware we gain access to all the documents that were returned from the query
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
-  console.log(docs);
+  next();
+});
+
+//AGGREGATION MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  //this.pipeline is an array so we use unshift to add something at the begginning
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  console.log(this.pipeline());
   next();
 });
 
