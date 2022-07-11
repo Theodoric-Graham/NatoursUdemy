@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 //virtual properties are fields we define on our schema but that will not be persistent, they will not be saved to the database
 //we cannot use virtial properties in a query, because they are technically not part of the database
@@ -13,6 +14,7 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxlength: [40, 'A tour name must have less or equal to 40 characters'],
       minlength: [10, 'A tour name must have more or equal to 10 characters'],
+      // validate: [validator.isAlpha, 'Tour name must only contain characters'],
     },
     slug: String,
     duration: {
@@ -47,7 +49,19 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    //Custom Validator
+    priceDiscount: {
+      type: Number,
+      //this keyword will point to current document when we have a new document, will not work on update
+      //the function will have access to the value that was input
+      validate: {
+        validator: function (val) {
+          return val < this.price;
+        },
+        //({VALUE}) same as val
+        message: 'Discount price ({VALUE}) should be below regular price',
+      },
+    },
     summary: {
       type: String,
       //schema type option for strings only, will remove whitespace at beginning and end
