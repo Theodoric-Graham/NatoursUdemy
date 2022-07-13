@@ -19,7 +19,7 @@ mongoose
     useFindAndModify: false,
     useUnifiedTopology: true,
   })
-  .then(() => console.log('DB connection succesful'));
+  .then(() => console.log('DB connection successful'));
 
 //new document we created out of a tour model
 //an instance of the tour model

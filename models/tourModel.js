@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator');
+// const validator = require('validator');
 
 //virtual properties are fields we define on our schema but that will not be persistent, they will not be saved to the database
 //we cannot use virtial properties in a query, because they are technically not part of the database

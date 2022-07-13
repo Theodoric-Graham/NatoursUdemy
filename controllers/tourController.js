@@ -40,7 +40,7 @@ exports.aliasTopTours = (req, res, next) => {
 // Controllers Handlers
 exports.getAllTours = async (req, res) => {
   try {
-    console.log(req.query);
+    // console.log(req.query);
 
     //Building Query
     // 1A) Filtering
