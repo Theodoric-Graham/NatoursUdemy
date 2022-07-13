@@ -21,11 +21,6 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
-  console.log('Hello from the middleware 😍');
-  next();
-});
-
-app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
@@ -48,5 +43,15 @@ app.use((req, res, next) => {
 // also called mounting the router, mounting a new router on a route
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+//adding middleware after the routers will only be reached if not handled by any of the other routers
+//.all() will check all the HTTP methods
+//since we want to handle all urls that were not handled before, we can use * to handle everything
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server!`,
+  });
+});
 
 module.exports = app;
