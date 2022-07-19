@@ -5,6 +5,7 @@ class AppError extends Error {
 
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+    //marking operational errors to differentiate between dev and prod
     this.isOperational = true;
 
     //first, the current object, then the appError class itself
